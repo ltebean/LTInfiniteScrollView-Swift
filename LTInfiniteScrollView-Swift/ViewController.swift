@@ -61,7 +61,7 @@ extension ViewController: LTInfiniteScrollViewDataSource {
 
 extension ViewController: LTInfiniteScrollViewDelegate {
     
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: ScrollDirection) {
+    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection) {
         let size = screenWidth / CGFloat(numberOfVisibleViews())
 
         var transform = CGAffineTransformIdentity

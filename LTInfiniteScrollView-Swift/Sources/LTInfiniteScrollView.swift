@@ -9,7 +9,7 @@
 import UIKit
 
 public protocol LTInfiniteScrollViewDelegate: class {
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: ScrollDirection)
+    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection)
 }
 
 public protocol LTInfiniteScrollViewDataSource: class {
@@ -18,12 +18,13 @@ public protocol LTInfiniteScrollViewDataSource: class {
     func numberOfVisibleViews() -> Int
 }
 
-public enum ScrollDirection {
-    case Right
-    case Left
-}
 
 public class LTInfiniteScrollView: UIView {
+    
+    public enum ScrollDirection {
+        case Right
+        case Left
+    }
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
@@ -53,9 +54,15 @@ public class LTInfiniteScrollView: UIView {
         }
     }
     
+    public var contentInset = UIEdgeInsetsZero {
+        didSet {
+            scrollView.contentInset = contentInset
+        }
+    }
+    
     public var maxScrollDistance: Int?
     
-    private(set) var currentIndex = 0
+    public private(set) var currentIndex = 0
     private var scrollView: UIScrollView!
     private var viewSize: CGSize!
     private var visibleViewCount = 0
@@ -90,8 +97,7 @@ public class LTInfiniteScrollView: UIView {
     public func scrollToIndex(index: Int, animated: Bool) {
         if index < currentIndex {
             scrollDirection = .Right
-        }
-        else {
+        } else {
             scrollDirection = .Left
         }
         scrollView.setContentOffset(contentOffsetForIndex(index), animated: animated)
@@ -168,8 +174,6 @@ public class LTInfiniteScrollView: UIView {
             delegate.updateView(view, withProgress: progress, scrollDirection: scrollDirection)
         }
     }
-    
-
     
     // MARK: helper
     private func needsCenterPage() -> Bool {
