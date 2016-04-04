@@ -1,3 +1,5 @@
+![LTInfiniteScrollView-Swift](https://cocoapod-badges.herokuapp.com/v/LTInfiniteScrollView-Swift/badge.png)
+
 ## Demo
 ##### 1. You can apply animation to each view during the scroll:
 ![LTInfiniteScrollView](https://raw.githubusercontent.com/ltebean/LTInfiniteScrollView/master/demo/demo.gif)
@@ -12,8 +14,11 @@
 You can find the full demo in the Objective-C version: https://github.com/ltebean/LTInfiniteScrollView.
 
 ## Installation
+```
+pod 'LTInfiniteScrollView-Swift'
+```
 
-Since there is a major performance issue when using frameworks, I suggest to just copy `LTInfiniteScrollView.swift` into your project.
+Or just copy `LTInfiniteScrollView.swift` into your project.
 
 
 ## Usage
