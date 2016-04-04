@@ -1,4 +1,4 @@
-![LTInfiniteScrollView-Swift](https://cocoapod-badges.herokuapp.com/v/LTInfiniteScrollView-Swift/badge.png)
+![LTInfiniteScrollViewSwift](https://cocoapod-badges.herokuapp.com/v/LTInfiniteScrollViewSwift/badge.png)
 
 ## Demo
 ##### 1. You can apply animation to each view during the scroll:
@@ -15,7 +15,7 @@ You can find the full demo in the Objective-C version: https://github.com/ltebea
 
 ## Installation
 ```
-pod 'LTInfiniteScrollView-Swift'
+pod 'LTInfiniteScrollViewSwift'
 ```
 
 Or just copy `LTInfiniteScrollView.swift` into your project.
