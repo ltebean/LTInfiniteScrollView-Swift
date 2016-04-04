@@ -9,7 +9,7 @@
 import UIKit
 
 public protocol LTInfiniteScrollViewDelegate: class {
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection)
+    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: ScrollDirection)
 }
 
 public protocol LTInfiniteScrollViewDataSource: class {
@@ -18,13 +18,12 @@ public protocol LTInfiniteScrollViewDataSource: class {
     func numberOfVisibleViews() -> Int
 }
 
+public enum ScrollDirection {
+    case Right
+    case Left
+}
 
 public class LTInfiniteScrollView: UIView {
-    
-    public enum ScrollDirection {
-        case Right
-        case Left
-    }
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
@@ -54,15 +53,9 @@ public class LTInfiniteScrollView: UIView {
         }
     }
     
-    public var contentInset = UIEdgeInsetsZero {
-        didSet {
-            scrollView.contentInset = contentInset
-        }
-    }
-    
     public var maxScrollDistance: Int?
     
-    public private(set) var currentIndex = 0
+    private(set) var currentIndex = 0
     private var scrollView: UIScrollView!
     private var viewSize: CGSize!
     private var visibleViewCount = 0
@@ -82,11 +75,7 @@ public class LTInfiniteScrollView: UIView {
         }
         visibleViewCount = dataSource.numberOfVisibleViews()
         totalViewCount = dataSource.numberOfViews()
-        let viewWidth = CGRectGetWidth(bounds) / CGFloat(visibleViewCount)
-        let viewHeight: CGFloat = CGRectGetHeight(bounds)
-        viewSize = CGSize(width: viewWidth, height: viewHeight)
-        totalWidth = viewWidth * CGFloat(totalViewCount)
-        scrollView.contentSize = CGSizeMake(self.totalWidth, CGRectGetHeight(self.bounds))
+        updateContentSize()
         views = [:]
         currentIndex = initialIndex
         scrollView.contentOffset = contentOffsetForIndex(currentIndex)
@@ -97,7 +86,8 @@ public class LTInfiniteScrollView: UIView {
     public func scrollToIndex(index: Int, animated: Bool) {
         if index < currentIndex {
             scrollDirection = .Right
-        } else {
+        }
+        else {
             scrollDirection = .Left
         }
         scrollView.setContentOffset(contentOffsetForIndex(index), animated: animated)
@@ -111,6 +101,18 @@ public class LTInfiniteScrollView: UIView {
         return [UIView](views.values)
     }
     
+    public override func layoutSubviews() {
+        let index = currentIndex;
+        super.layoutSubviews()
+        scrollView.frame = bounds
+        updateContentSize()
+        for (index, view) in views {
+            view.center = self.centerForViewAtIndex(index)
+        }
+        scrollToIndex(index, animated: false)
+        updateProgress()
+    }
+    
     // MARK: private func
     private func setup() {
         scrollView = UIScrollView(frame: CGRectMake(0, 0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds)))
@@ -119,6 +121,15 @@ public class LTInfiniteScrollView: UIView {
         scrollView.delegate = self
         scrollView.clipsToBounds = false
         addSubview(self.scrollView)
+    }
+    
+    
+    private func updateContentSize() {
+        let viewWidth = CGRectGetWidth(bounds) / CGFloat(visibleViewCount)
+        let viewHeight: CGFloat = CGRectGetHeight(bounds)
+        viewSize = CGSize(width: viewWidth, height: viewHeight)
+        totalWidth = viewWidth * CGFloat(totalViewCount)
+        scrollView.contentSize = CGSizeMake(self.totalWidth, CGRectGetHeight(self.bounds))
     }
     
     private func reArrangeViews() {
@@ -174,6 +185,8 @@ public class LTInfiniteScrollView: UIView {
             delegate.updateView(view, withProgress: progress, scrollDirection: scrollDirection)
         }
     }
+    
+
     
     // MARK: helper
     private func needsCenterPage() -> Bool {
