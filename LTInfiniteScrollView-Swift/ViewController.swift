@@ -12,12 +12,11 @@ class ViewController: UIViewController {
 
     let screenWidth = UIScreen.mainScreen().bounds.size.width
     
-    var scrollView: LTInfiniteScrollView!
+    @IBOutlet weak var scrollView: LTInfiniteScrollView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        scrollView = LTInfiniteScrollView(frame: CGRect(x: 0, y: 200, width: screenWidth, height: 300))
         scrollView.dataSource = self
         scrollView.delegate = self
         scrollView.maxScrollDistance = 5
@@ -80,6 +79,10 @@ extension ViewController: LTInfiniteScrollViewDelegate {
         transform = CGAffineTransformTranslate(transform, translate, 0)
         
         view.transform = transform
+    }
+    
+    func scrollViewDidScrollToIndex(scrollView: LTInfiniteScrollView, index: Int) {
+        print("scroll to index: \(index)")
     }
 }
 

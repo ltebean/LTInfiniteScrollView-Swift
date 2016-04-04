@@ -9,7 +9,8 @@
 import UIKit
 
 public protocol LTInfiniteScrollViewDelegate: class {
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: ScrollDirection)
+    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection)
+    func scrollViewDidScrollToIndex(scrollView: LTInfiniteScrollView, index: Int)
 }
 
 public protocol LTInfiniteScrollViewDataSource: class {
@@ -18,12 +19,13 @@ public protocol LTInfiniteScrollViewDataSource: class {
     func numberOfVisibleViews() -> Int
 }
 
-public enum ScrollDirection {
-    case Right
-    case Left
-}
 
 public class LTInfiniteScrollView: UIView {
+    
+    public enum ScrollDirection {
+        case Previous
+        case Next
+    }
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,7 +36,7 @@ public class LTInfiniteScrollView: UIView {
         super.init(coder: aDecoder)
         self.setup()
     }
-    
+        
     public var pagingEnabled = false {
         didSet {
             scrollView.pagingEnabled = pagingEnabled
@@ -44,6 +46,12 @@ public class LTInfiniteScrollView: UIView {
     public var bounces = false {
         didSet {
             scrollView.bounces = bounces
+        }
+    }
+    
+    public var contentInset = UIEdgeInsetsZero {
+        didSet {
+            scrollView.contentInset = contentInset;
         }
     }
     
@@ -62,7 +70,7 @@ public class LTInfiniteScrollView: UIView {
     private var totalViewCount = 0
     private var preContentOffsetX: CGFloat = 0
     private var totalWidth: CGFloat = 0
-    private var scrollDirection: ScrollDirection = .Left
+    private var scrollDirection: ScrollDirection = .Next
     private var views: [Int: UIView] = [:]
     
     public weak var delegate: LTInfiniteScrollViewDelegate?
@@ -85,10 +93,10 @@ public class LTInfiniteScrollView: UIView {
     
     public func scrollToIndex(index: Int, animated: Bool) {
         if index < currentIndex {
-            scrollDirection = .Right
+            scrollDirection = .Previous
         }
         else {
-            scrollDirection = .Left
+            scrollDirection = .Next
         }
         scrollView.setContentOffset(contentOffsetForIndex(index), animated: animated)
     }
@@ -218,6 +226,10 @@ public class LTInfiniteScrollView: UIView {
         let x = CGFloat(index) * viewSize.width + viewSize.width / 2
         return CGPointMake(x, y)
     }
+    
+    private func didScrollToIndex(index : Int) {
+        delegate?.scrollViewDidScrollToIndex(self, index: index)
+    }
 }
 
 
@@ -228,10 +240,10 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
         let offsetX = scrollView.contentOffset.x
         currentIndex = Int(round((currentCenterX - viewSize.width / 2) / viewSize.width))
         if offsetX > preContentOffsetX {
-            scrollDirection = .Left
+            scrollDirection = .Next
         }
         else {
-            scrollDirection = .Right
+            scrollDirection = .Previous
         }
         preContentOffsetX = offsetX
         reArrangeViews()
@@ -245,6 +257,7 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
                 return
             }
             scrollView.setContentOffset(contentOffsetForIndex(currentIndex), animated: true)
+            didScrollToIndex(currentIndex)
         }
     }
     
@@ -252,6 +265,7 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
         if !pagingEnabled && needsCenterPage() {
             scrollView.setContentOffset(contentOffsetForIndex(currentIndex), animated: true)
         }
+        didScrollToIndex(currentIndex)
     }
     
     public func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
@@ -269,7 +283,7 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
         }
         else {
             let distance = maxScrollDistance - 1
-            let targetIndex = scrollDirection == .Left ? currentIndex + distance : currentIndex - distance
+            let targetIndex = scrollDirection == .Next ? currentIndex + distance : currentIndex - distance
             targetContentOffset.memory.x = contentOffsetForIndex(targetIndex).x
         }
     }
