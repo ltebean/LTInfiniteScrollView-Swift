@@ -63,7 +63,8 @@ public class LTInfiniteScrollView: UIView {
     
     public var maxScrollDistance: Int?
     
-    private(set) var currentIndex = 0
+    public private(set) var currentIndex = 0
+    
     private var scrollView: UIScrollView!
     private var viewSize: CGSize!
     private var visibleViewCount = 0
