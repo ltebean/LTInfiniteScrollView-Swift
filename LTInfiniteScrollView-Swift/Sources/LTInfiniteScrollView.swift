@@ -9,22 +9,22 @@
 import UIKit
 
 public protocol LTInfiniteScrollViewDelegate: class {
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection)
-    func scrollViewDidScrollToIndex(scrollView: LTInfiniteScrollView, index: Int)
+    func updateView(_ view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection)
+    func scrollViewDidScrollToIndex(_ scrollView: LTInfiniteScrollView, index: Int)
 }
 
 public protocol LTInfiniteScrollViewDataSource: class {
-    func viewAtIndex(index: Int, reusingView view: UIView?) -> UIView
+    func viewAtIndex(_ index: Int, reusingView view: UIView?) -> UIView
     func numberOfViews() -> Int
     func numberOfVisibleViews() -> Int
 }
 
 
-public class LTInfiniteScrollView: UIView {
+open class LTInfiniteScrollView: UIView {
     
     public enum ScrollDirection {
-        case Previous
-        case Next
+        case previous
+        case next
     }
     
     override public init(frame: CGRect) {
@@ -37,48 +37,48 @@ public class LTInfiniteScrollView: UIView {
         self.setup()
     }
         
-    public var pagingEnabled = false {
+    open var pagingEnabled = false {
         didSet {
-            scrollView.pagingEnabled = pagingEnabled
+            scrollView.isPagingEnabled = pagingEnabled
         }
     }
     
-    public var bounces = false {
+    open var bounces = false {
         didSet {
             scrollView.bounces = bounces
         }
     }
     
-    public var contentInset = UIEdgeInsetsZero {
+    open var contentInset = UIEdgeInsets.zero {
         didSet {
             scrollView.contentInset = contentInset;
         }
     }
     
-    public var scrollEnabled = false {
+    open var scrollEnabled = false {
         didSet {
-            scrollView.scrollEnabled = scrollEnabled
+            scrollView.isScrollEnabled = scrollEnabled
         }
     }
     
-    public var maxScrollDistance: Int?
+    open var maxScrollDistance: Int?
     
-    public private(set) var currentIndex = 0
+    open fileprivate(set) var currentIndex = 0
     
-    private var scrollView: UIScrollView!
-    private var viewSize: CGSize!
-    private var visibleViewCount = 0
-    private var totalViewCount = 0
-    private var preContentOffsetX: CGFloat = 0
-    private var totalWidth: CGFloat = 0
-    private var scrollDirection: ScrollDirection = .Next
-    private var views: [Int: UIView] = [:]
+    fileprivate var scrollView: UIScrollView!
+    fileprivate var viewSize: CGSize!
+    fileprivate var visibleViewCount = 0
+    fileprivate var totalViewCount = 0
+    fileprivate var preContentOffsetX: CGFloat = 0
+    fileprivate var totalWidth: CGFloat = 0
+    fileprivate var scrollDirection: ScrollDirection = .next
+    fileprivate var views: [Int: UIView] = [:]
     
-    public weak var delegate: LTInfiniteScrollViewDelegate?
-    public var dataSource: LTInfiniteScrollViewDataSource!
+    open weak var delegate: LTInfiniteScrollViewDelegate?
+    open var dataSource: LTInfiniteScrollViewDataSource!
     
     // MARK: public func
-    public func reloadData(initialIndex initialIndex: Int=0) {
+    open func reloadData(initialIndex: Int=0) {
         for view in scrollView.subviews {
             view.removeFromSuperview()
         }
@@ -92,25 +92,25 @@ public class LTInfiniteScrollView: UIView {
         updateProgress()
     }
     
-    public func scrollToIndex(index: Int, animated: Bool) {
+    open func scrollToIndex(_ index: Int, animated: Bool) {
         if index < currentIndex {
-            scrollDirection = .Previous
+            scrollDirection = .previous
         }
         else {
-            scrollDirection = .Next
+            scrollDirection = .next
         }
         scrollView.setContentOffset(contentOffsetForIndex(index), animated: animated)
     }
     
-    public func viewAtIndex(index: Int) -> UIView? {
+    open func viewAtIndex(_ index: Int) -> UIView? {
         return views[index]
     }
     
-    public func allViews() -> [UIView] {
+    open func allViews() -> [UIView] {
         return [UIView](views.values)
     }
     
-    public override func layoutSubviews() {
+    open override func layoutSubviews() {
         let index = currentIndex;
         super.layoutSubviews()
         scrollView.frame = bounds
@@ -123,9 +123,9 @@ public class LTInfiniteScrollView: UIView {
     }
     
     // MARK: private func
-    private func setup() {
-        scrollView = UIScrollView(frame: CGRectMake(0, 0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds)))
-        scrollView.autoresizingMask = [UIViewAutoresizing.FlexibleWidth, UIViewAutoresizing.FlexibleHeight]
+    fileprivate func setup() {
+        scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height))
+        scrollView.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.delegate = self
         scrollView.clipsToBounds = false
@@ -133,19 +133,19 @@ public class LTInfiniteScrollView: UIView {
     }
     
     
-    private func updateContentSize() {
-        let viewWidth = CGRectGetWidth(bounds) / CGFloat(visibleViewCount)
-        let viewHeight: CGFloat = CGRectGetHeight(bounds)
+    fileprivate func updateContentSize() {
+        let viewWidth = bounds.width / CGFloat(visibleViewCount)
+        let viewHeight: CGFloat = bounds.height
         viewSize = CGSize(width: viewWidth, height: viewHeight)
         totalWidth = viewWidth * CGFloat(totalViewCount)
-        scrollView.contentSize = CGSizeMake(self.totalWidth, CGRectGetHeight(self.bounds))
+        scrollView.contentSize = CGSize(width: self.totalWidth, height: self.bounds.height)
     }
     
-    private func reArrangeViews() {
+    fileprivate func reArrangeViews() {
         var indexesNeeded = Set<Int>()
         let begin = currentIndex - Int(ceil(Double(visibleViewCount) / 2.0))
         let end = currentIndex + Int(ceil(Double(visibleViewCount) / 2.0))
-        for var i = begin; i <= end; i++ {
+        for i in begin...end {
             if i < 0 {
                 let index = end - i
                 if index < totalViewCount {
@@ -171,7 +171,7 @@ public class LTInfiniteScrollView: UIView {
             for index in currentIndexes {
                 if !indexesNeeded.contains(index) {
                     view = views[index]
-                    views.removeValueForKey(index)
+                    views.removeValue(forKey: index)
                     break
                 }
             }
@@ -184,13 +184,13 @@ public class LTInfiniteScrollView: UIView {
         }
     }
     
-    private func updateProgress() {
+    fileprivate func updateProgress() {
         guard let delegate = delegate else {
             return
         }
         let currentCenterX = currentCenter().x
         for view in allViews() {
-            let progress = (view.center.x - currentCenterX) / CGRectGetWidth(bounds) * CGFloat(visibleViewCount)
+            let progress = (view.center.x - currentCenterX) / bounds.width * CGFloat(visibleViewCount)
             delegate.updateView(view, withProgress: progress, scrollDirection: scrollDirection)
         }
     }
@@ -198,7 +198,7 @@ public class LTInfiniteScrollView: UIView {
 
     
     // MARK: helper
-    private func needsCenterPage() -> Bool {
+    fileprivate func needsCenterPage() -> Bool {
         let offsetX = scrollView.contentOffset.x
         if offsetX < 0 || offsetX > scrollView.contentSize.width - viewSize.width {
             return false
@@ -208,27 +208,27 @@ public class LTInfiniteScrollView: UIView {
         }
     }
     
-    private func currentCenter() -> CGPoint {
-        let x = scrollView.contentOffset.x + CGRectGetWidth(bounds) / 2.0
+    fileprivate func currentCenter() -> CGPoint {
+        let x = scrollView.contentOffset.x + bounds.width / 2.0
         let y = scrollView.contentOffset.y
-        return CGPointMake(x, y)
+        return CGPoint(x: x, y: y)
     }
     
-    private func contentOffsetForIndex(index: Int) -> CGPoint {
+    fileprivate func contentOffsetForIndex(_ index: Int) -> CGPoint {
         let centerX = centerForViewAtIndex(index).x
-        var x: CGFloat = centerX - CGRectGetWidth(self.bounds) / 2.0
+        var x: CGFloat = centerX - self.bounds.width / 2.0
         x = max(0, x)
         x = min(x, scrollView.contentSize.width)
-        return CGPointMake(x, 0)
+        return CGPoint(x: x, y: 0)
     }
     
-    private func centerForViewAtIndex(index: Int) -> CGPoint {
-        let y = CGRectGetMidY(bounds)
+    fileprivate func centerForViewAtIndex(_ index: Int) -> CGPoint {
+        let y = bounds.midY
         let x = CGFloat(index) * viewSize.width + viewSize.width / 2
-        return CGPointMake(x, y)
+        return CGPoint(x: x, y: y)
     }
     
-    private func didScrollToIndex(index : Int) {
+    fileprivate func didScrollToIndex(_ index : Int) {
         delegate?.scrollViewDidScrollToIndex(self, index: index)
     }
 }
@@ -236,22 +236,22 @@ public class LTInfiniteScrollView: UIView {
 
 extension LTInfiniteScrollView: UIScrollViewDelegate {
     
-    public func scrollViewDidScroll(scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let currentCenterX = currentCenter().x
         let offsetX = scrollView.contentOffset.x
         currentIndex = Int(round((currentCenterX - viewSize.width / 2) / viewSize.width))
         if offsetX > preContentOffsetX {
-            scrollDirection = .Next
+            scrollDirection = .next
         }
         else {
-            scrollDirection = .Previous
+            scrollDirection = .previous
         }
         preContentOffsetX = offsetX
         reArrangeViews()
         updateProgress()
     }
     
-    public func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !pagingEnabled && !decelerate && needsCenterPage() {
             let offsetX = scrollView.contentOffset.x
             if offsetX < 0 || offsetX > scrollView.contentSize.width {
@@ -262,30 +262,30 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
         }
     }
     
-    public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if !pagingEnabled && needsCenterPage() {
             scrollView.setContentOffset(contentOffsetForIndex(currentIndex), animated: true)
         }
         didScrollToIndex(currentIndex)
     }
     
-    public func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
     
-        guard let maxScrollDistance = maxScrollDistance where maxScrollDistance > 0 else {
+        guard let maxScrollDistance = maxScrollDistance , maxScrollDistance > 0 else {
             return
         }
         guard needsCenterPage() else {
             return
         }
-        let targetX = targetContentOffset.memory.x
+        let targetX = targetContentOffset.pointee.x
         let currentX = contentOffsetForIndex(currentIndex).x
         if fabs(targetX - currentX) <= viewSize.width / 2 {
             return
         }
         else {
             let distance = maxScrollDistance - 1
-            let targetIndex = scrollDirection == .Next ? currentIndex + distance : currentIndex - distance
-            targetContentOffset.memory.x = contentOffsetForIndex(targetIndex).x
+            let targetIndex = scrollDirection == .next ? currentIndex + distance : currentIndex - distance
+            targetContentOffset.pointee.x = contentOffsetForIndex(targetIndex).x
         }
     }
 }
