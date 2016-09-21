@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    let screenWidth = UIScreen.mainScreen().bounds.size.width
+    let screenWidth = UIScreen.main.bounds.size.width
     
     @IBOutlet weak var scrollView: LTInfiniteScrollView!
     
@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         view.addSubview(scrollView)
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         scrollView.reloadData(initialIndex: 0)
     }
@@ -31,7 +31,7 @@ class ViewController: UIViewController {
 
 extension ViewController: LTInfiniteScrollViewDataSource {
 
-    func viewAtIndex(index: Int, reusingView view: UIView?) -> UIView {
+    func viewAtIndex(_ index: Int, reusingView view: UIView?) -> UIView {
         if let label = view as? UILabel {
             label.text = "\(index)"
             return label
@@ -39,9 +39,9 @@ extension ViewController: LTInfiniteScrollViewDataSource {
         else {
             let size = screenWidth / CGFloat(numberOfVisibleViews())
             let label = UILabel(frame: CGRect(x: 0, y: 0, width: size, height: size))
-            label.textAlignment = .Center
-            label.backgroundColor = UIColor.darkGrayColor()
-            label.textColor = UIColor.whiteColor()
+            label.textAlignment = .center
+            label.backgroundColor = UIColor.darkGray
+            label.textColor = UIColor.white
             label.layer.cornerRadius = size / 2
             label.layer.masksToBounds = true
             label.text = "\(index)"
@@ -60,13 +60,13 @@ extension ViewController: LTInfiniteScrollViewDataSource {
 
 extension ViewController: LTInfiniteScrollViewDelegate {
     
-    func updateView(view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection) {
+    func updateView(_ view: UIView, withProgress progress: CGFloat, scrollDirection direction: LTInfiniteScrollView.ScrollDirection) {
         let size = screenWidth / CGFloat(numberOfVisibleViews())
 
-        var transform = CGAffineTransformIdentity
+        var transform = CGAffineTransform.identity
         // scale
         let scale = (1.4 - 0.3 * (fabs(progress)))
-        transform = CGAffineTransformScale(transform, scale, scale)
+        transform = transform.scaledBy(x: scale, y: scale)
         
         // translate
         var translate = size / 4 * progress
@@ -76,12 +76,12 @@ extension ViewController: LTInfiniteScrollViewDelegate {
         else if progress < -1 {
             translate = -size / 4
         }
-        transform = CGAffineTransformTranslate(transform, translate, 0)
+        transform = transform.translatedBy(x: translate, y: 0)
         
         view.transform = transform
     }
     
-    func scrollViewDidScrollToIndex(scrollView: LTInfiniteScrollView, index: Int) {
+    func scrollViewDidScrollToIndex(_ scrollView: LTInfiniteScrollView, index: Int) {
         print("scroll to index: \(index)")
     }
 }
