@@ -200,7 +200,7 @@ open class LTInfiniteScrollView: UIView {
     // MARK: helper
     fileprivate func needsCenterPage() -> Bool {
         let offsetX = scrollView.contentOffset.x
-        if offsetX < 0 || offsetX > scrollView.contentSize.width - viewSize.width {
+        if offsetX < -scrollView.contentInset.left || offsetX > scrollView.contentSize.width - viewSize.width {
             return false
         }
         else {
@@ -217,7 +217,7 @@ open class LTInfiniteScrollView: UIView {
     fileprivate func contentOffsetForIndex(_ index: Int) -> CGPoint {
         let centerX = centerForViewAtIndex(index).x
         var x: CGFloat = centerX - self.bounds.width / 2.0
-        x = max(0, x)
+        x = max(-scrollView.contentInset.left, x)
         x = min(x, scrollView.contentSize.width)
         return CGPoint(x: x, y: 0)
     }
@@ -237,6 +237,9 @@ open class LTInfiniteScrollView: UIView {
 extension LTInfiniteScrollView: UIScrollViewDelegate {
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if viewSize == nil {
+            return
+        }
         let currentCenterX = currentCenter().x
         let offsetX = scrollView.contentOffset.x
         currentIndex = Int(round((currentCenterX - viewSize.width / 2) / viewSize.width))
@@ -280,11 +283,12 @@ extension LTInfiniteScrollView: UIScrollViewDelegate {
         let targetX = targetContentOffset.pointee.x
         let currentX = contentOffsetForIndex(currentIndex).x
         if fabs(targetX - currentX) <= viewSize.width / 2 {
-            return
+            targetContentOffset.pointee.x = contentOffsetForIndex(currentIndex).x
         }
         else {
             let distance = maxScrollDistance - 1
-            let targetIndex = scrollDirection == .next ? currentIndex + distance : currentIndex - distance
+            var targetIndex = scrollDirection == .next ? currentIndex + distance : currentIndex - distance
+            targetIndex = max(0, targetIndex)
             targetContentOffset.pointee.x = contentOffsetForIndex(targetIndex).x
         }
     }

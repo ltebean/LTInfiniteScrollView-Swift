@@ -20,12 +20,20 @@ class ViewController: UIViewController {
         scrollView.dataSource = self
         scrollView.delegate = self
         scrollView.maxScrollDistance = 5
+        
+        let size = screenWidth / CGFloat(numberOfVisibleViews())
+        
+        scrollView.contentInset.left = screenWidth / 2 - size / 2
+        scrollView.contentInset.right = screenWidth / 2 - size / 2
+        
         view.addSubview(scrollView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         scrollView.reloadData(initialIndex: 0)
+        
+
     }
 }
 
@@ -50,7 +58,7 @@ extension ViewController: LTInfiniteScrollViewDataSource {
     }
     
     func numberOfViews() -> Int {
-        return 100
+        return 10
     }
     
     func numberOfVisibleViews() -> Int {
