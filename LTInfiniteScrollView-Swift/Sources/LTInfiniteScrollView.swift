@@ -235,7 +235,7 @@ open class LTInfiniteScrollView: UIView {
 
     
     // MARK: helper
-    ///  当前页面需要把某一个 cell 移动到中间
+    
     fileprivate func needsCenterPage() -> Bool {
         let position = verticalScroll ? scrollPosition + contentInset.top : scrollPosition + contentInset.left
         if position < 0 || position > scrollViewContentSize - viewSize {
